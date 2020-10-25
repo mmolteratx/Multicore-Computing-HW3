@@ -19,7 +19,7 @@ public class LockFreeIntStack {
         }
     }
 
-    public Integer pop() {
+    public Integer pop() throws Exception {
 
         Node<Integer> currentHead = headNode.get();
         
@@ -35,7 +35,7 @@ public class LockFreeIntStack {
 
         // null handling
         if(currentHead == null)
-            return null;
+            throw new Exception("EmptyStack");
         else
             return currentHead.getValue();
     }

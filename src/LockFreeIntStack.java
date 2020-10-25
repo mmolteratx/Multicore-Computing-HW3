@@ -1,3 +1,5 @@
+// No testing done; still need to verify that concurrency is handled successfully
+
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LockFreeIntStack {
@@ -20,16 +22,18 @@ public class LockFreeIntStack {
     public Integer pop() {
 
         Node<Integer> currentHead = headNode.get();
-
+        
+        // don't bother if null
         while (currentHead != null) {
             Node<Integer> newHead = currentHead.next;
 
             // if currentHead is still equal to node referenced by headNode (no other process has attempted to update),
             // update headNode with newHead (next node), otherwise, start over and try again
             if (headNode.compareAndSet(currentHead, newHead)) {break;}
+            else {currentHead = headNode.get();}
         }
 
-        // return correct value
+        // null handling
         if(currentHead == null)
             return null;
         else

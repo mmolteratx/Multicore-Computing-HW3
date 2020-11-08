@@ -56,8 +56,19 @@ P2       [ write(x,1)                   ]    [ read(x)  returns 2]
 P3             [write(x,2)      ]            
 \end{verbatim}
 
+\subsubsection{Equivalent order}
+This can be written as
+
+H1 = $P_2.write(x, 1), P_1.read(x), P_3.write(x, 2), P_3.ok(), P_1.ok(1), P_2.ok(), P_2.read(x), P_2.ok(2)$
+
+which is equivalent to 
+
+H1 = $P_2.write(x, 1), P_2.ok(), P_1.read(x), P1.ok(1), P_3.write(x, 2), P_3.ok(), P_2.read(x), P_2.ok(2)$
+
 \subsubsection{Solution part a - sequentially consistent?}
+Yes, this is sequentially consistent, as the above equivalency is legal (consistent with sequential history of each object), and satisfies process order (no invocations on same process before response of previous operation).
 \subsubsection{Solution part b - linearizable?}
+Yes, this is linearizable, as the previously shown equivalent history also satisfies the preserving $<_H$ requirement.
 
 \subsection{H2}
 \begin{verbatim}
@@ -68,8 +79,19 @@ P2       [ write(x,1)                   ]    [ read(x)  returns 1]
 P3             [write(x,2)      ]            
 \end{verbatim}
 
+\subsubsection{Equivalent order}
+This can be written as
+
+H1 = $P_2.write(x, 1), P_1.read(x), P_3.write(x, 2), P_3.ok(), P_1.ok(1), P_2.ok(), P_2.read(x), P_2.ok(1)$
+
+which is equivalent to 
+
+H1 = $P_2.write(x, 1), P_2.ok(), P_1.read(x), P_1.ok(1), P_2.read(x), P_2.ok(1), P_3.write(x, 2), P_3.ok()$
+
 \subsubsection{Solution part a - sequentially consistent?}
+Yes, this is sequentially consistent. Again, the above equivalency is legal and satisfies process order.
 \subsubsection{Solution part b - linearizable?}
+This is not linearizable. In order to have a sequential history that is legal, we must violate the $<_H$ requirement by reading on $P_2$ before $P_3$ has finished writing. However, per the original history, $P_3$ receives the $ok()$ for its write before $P_2$ invokes its own read, so the above equivalency violates $<_H$.
 
 \subsection{H3}
 \begin{verbatim}
@@ -80,8 +102,19 @@ P2       [ write(x,1) ]                       [ read(x)  returns 1]
 P3                        [write(x,2)      ]            
 \end{verbatim}
 
+\subsubsection{Equivalent order}
+This can be written as
+
+H1 = $P_2.write(x, 1), P_1.read(x), P_2.ok(), P_3.write(x, 2), P_1.ok(1), P_3.ok(), P_2.read(x), P_2.ok(1)$
+
+which is equivalent to 
+
+H1 = $P_2.write(x, 1), P_2.ok(), P_1.read(x), P_1.ok(1), P_2.read(x), P_2.ok(1), P_3.write(x, 2), P_3.ok()$
+
 \subsubsection{Solution part a - sequentially consistent?}
+Yes, this is sequentially consistent. Again, the above equivalency is legal and satisfies process order.
 \subsubsection{Solution part b - linearizable?}
+This is not linearizable. In order to have a sequential history that is legal, we must violate the $<_H$ requirement by reading on $P_2$ before $P_3$ has finished writing. However, per the original history, $P_3$ receives the $ok()$ for its write before $P_2$ invokes its own read, so the above equivalency violates $<_H$.
 
 %%%%%%%%%%%%%%%%%
 %   Problem 2   %

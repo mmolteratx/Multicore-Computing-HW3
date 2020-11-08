@@ -1,22 +1,20 @@
 package stack;
 
-// No testing done; still need to verify that concurrency is handled successfully
-
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LockFreeStack implements MyStack {
 
-    private AtomicReference<Node<Integer>> headNode; 
+    private AtomicReference<Node> headNode;
     
     public LockFreeStack() {
-        headNode = new AtomicReference<Node<Integer>>();
+        headNode = new AtomicReference<Node>();
     }
 
     public boolean push(Integer i) {
-        Node<Integer> newHead = new Node<Integer>(i);
+        Node newHead = new Node(i);
 
         while(true) {
-            Node<Integer> currentHead = headNode.get();
+            Node currentHead = headNode.get();
             newHead.next = currentHead;
 
             // if currentHead is still equal to node referenced by headNode (no other process has attempted to update),
@@ -29,11 +27,11 @@ public class LockFreeStack implements MyStack {
 
     public Integer pop() throws EmptyStack {
 
-        Node<Integer> currentHead = headNode.get();
+        Node currentHead = headNode.get();
         
         // don't bother if null
         while (currentHead != null) {
-            Node<Integer> newHead = currentHead.next;
+            Node newHead = currentHead.next;
 
             // if currentHead is still equal to node referenced by headNode (no other process has attempted to update),
             // update headNode with newHead (next node), otherwise, start over and try again
@@ -43,9 +41,9 @@ public class LockFreeStack implements MyStack {
 
         // null handling
         if(currentHead == null)
-            throw new Exception("EmptyStack");
+            throw new EmptyStack();
         else
-            return currentHead.getValue();
+            return currentHead.value;
     }
 
     // vanilla node, but Integer only

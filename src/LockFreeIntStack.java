@@ -1,4 +1,5 @@
-// No testing done; still need to verify that concurrency is handled successfully
+
+// obsolete; remove before submission
 
 import java.util.concurrent.atomic.AtomicReference;
 

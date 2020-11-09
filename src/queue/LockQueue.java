@@ -40,10 +40,15 @@ public class LockQueue implements MyQueue {
 
         deqLock.lock();
 
-        returnInt = head.get().value;
-        head.get().next.set(null);
+        AtomicReference<LockQueue.Node> temp_head = new AtomicReference<Node>();
+        temp_head.set(head.get());
 
+        returnInt = head.get().next.get().value;
+        head.get().next.get().value = null;
         head.set(head.get().next.get());
+
+        temp_head.get().next = null;
+        temp_head.set(null);
 
         deqLock.unlock();
         return returnInt;
@@ -57,5 +62,16 @@ public class LockQueue implements MyQueue {
             value = x;
             next = new AtomicReference<LockQueue.Node>(null);
         }
+    }
+
+    public void printQueue() {
+        AtomicReference<LockQueue.Node> currNode = new AtomicReference<LockQueue.Node>(head.get());
+        System.out.print("Queue consists of: ");
+        while (currNode.get().next.get() != null) {
+            System.out.print(currNode.get().value + ", ");
+            currNode.set(currNode.get().next.get());
+        }
+        System.out.println(currNode.get().value + "");
+        return;
     }
 }

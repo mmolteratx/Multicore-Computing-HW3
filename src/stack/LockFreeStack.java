@@ -19,7 +19,17 @@ public class LockFreeStack implements MyStack {
 
             // if currentHead is still equal to node referenced by headNode (no other process has attempted to update),
             // update headNode with newHead (insertion), otherwise, start over and try again
-            if(headNode.compareAndSet(currentHead, newHead)) {break;}
+            if(headNode.compareAndSet(currentHead, newHead)) {
+                // For testing only
+                System.out.println("Push: " + newHead.value);
+                break;
+            }
+
+            /*try {
+                wait(100);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
         }
         
         return true;
@@ -35,8 +45,18 @@ public class LockFreeStack implements MyStack {
 
             // if currentHead is still equal to node referenced by headNode (no other process has attempted to update),
             // update headNode with newHead (next node), otherwise, start over and try again
-            if (headNode.compareAndSet(currentHead, newHead)) {break;}
-            else {currentHead = headNode.get();}
+            if (headNode.compareAndSet(currentHead, newHead)) {
+                System.out.println("Pop: " + currentHead.value);
+                break;
+            }
+            else {
+                /*try {
+                    wait(100);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }*/
+                currentHead = headNode.get();
+            }
         }
 
         // null handling

@@ -132,14 +132,36 @@ P3:  c:=1 ; print(a) ; print(b);
 Which of the outputs are sequentially consistent. Justify your answer.
 
 (a) P1 outputs 11, P2 outputs 01 and P3 outputs 11.\\
-
 (b) P1 outputs 00, P2 outputs 11 and P3 outputs 01.
 
 
 \subsection{Solution 2a}
-
+This is sequential consistent since this order is legal and satisfies the process order: \\
+$P_2.write(b, 1), P_2.ok(), P_2.print(a), P_2.ok(0), P_1.write(a,1), P_1.ok(), P_3.write(c,1), P_3.ok(),etc$ (any order of the remaining prints past here would return 1)
+ 
 
 \subsection{Solution 2b}
+This is not sequentially constant since there is no order that and keeps process order.
+
+For $P_1$ to print cleanly, these orderings of events must occur: \\
+$P_1.write(a,1) -> P_1.ok() -> P_1.print(b)$ \\
+$P_1.print(b) -> P_2.write(b, 1)$ \\
+$P_1.print(b) -> P_1.ok() -> P_1.print(c)$ \\
+$P_1.print(c) -> P_3.write(c, 1)$
+
+For $P_2$ to print cleanly, these orderings of events must occur: \\
+$ P_2.write(b,1) -> P_2.ok() -> P_2.print(a)$ \\
+$ P_1.write(a,1) -> P_2.print(a)$ \\
+$ P_2.print(a) -> P_2.ok(1) -> P_2.print(c)$ \\
+$ P_3.write(c,1) -> P_2.print(c)$ 
+
+For $P_3$ to print cleanly, these orderings of events must occur: \\
+$P_3.write(c,1) -> P_3.ok() -> P_3.print(a)$ \\ 
+$P_3.print(a), P_3 -> P_1.write(a,1)$ \\ 
+$P_3.print(a) -> P_3.ok(0) -> P_3.print(b)$ \\ 
+$P_2.write(b,1) -> P_3.print(b)$
+
+However, there is no combination of all of these events that maintains these ordering ($P_3$ and $P_1$ come into conflict) thus this is not sequentially consistent.
 
 
 %%%%%%%%%%%%%%%%%

@@ -1,10 +1,10 @@
-import queue.*;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import queue.LockQueue;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestLockQueue implements Runnable{
 
@@ -54,6 +54,7 @@ public class TestLockQueue implements Runnable{
 
         enqDeq.set(false);
         queue.printQueue();
+        System.out.println("Number in queue: " + queue.getCount());
         System.out.println("Swapping to dequeue!");
 
         threads = new Thread[numEnqThreads];
@@ -73,8 +74,8 @@ public class TestLockQueue implements Runnable{
             }
         }
 
-        System.out.println("Number en-queued: " + enqCount.get() + ", number de-queued: " + deqCount.get());
-        assertTrue("Number en-queued: " + enqCount.get() + ", number de-queued: " + deqCount.get(), enqCount.get() == deqCount.get());
+        System.out.println("Number en-queued: " + enqCount.get() + ", number de-queued: " + deqCount.get() + ", number in queue: " + queue.getCount());
+        assertTrue("Number en-queued: " + enqCount.get() + ", number de-queued: " + deqCount.get() + ", number in queue: " + queue.getCount(), enqCount.get() == deqCount.get());
     }
 
     @Override

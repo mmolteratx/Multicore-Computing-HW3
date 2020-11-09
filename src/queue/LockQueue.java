@@ -1,5 +1,6 @@
 package queue;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,9 +13,13 @@ public class LockQueue implements MyQueue {
     Lock enqLock = new ReentrantLock();
     Lock deqLock = new ReentrantLock();
 
+    protected AtomicInteger count = new AtomicInteger();
+
     public LockQueue() {
         // dummy node
         LockQueue.Node node = new LockQueue.Node(0);
+
+        count.set(0);
 
         // Both Head and Tail point to it
         head = new AtomicReference<LockQueue.Node>(node);
@@ -27,6 +32,8 @@ public class LockQueue implements MyQueue {
 
         tail.get().next.set(node);
         tail.set(node);
+
+        count.getAndIncrement();
 
         enqLock.unlock();
         return true;
@@ -50,8 +57,14 @@ public class LockQueue implements MyQueue {
         temp_head.get().next = null;
         temp_head.set(null);
 
+        count.getAndDecrement();
+
         deqLock.unlock();
         return returnInt;
+    }
+
+    public Integer getCount() {
+        return count.get();
     }
 
     protected class Node {

@@ -1,0 +1,188 @@
+\documentclass{article}
+
+\usepackage[english]{babel}
+\usepackage{lineno, blindtext}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\usepackage[ruled,vlined]{algorithm2e}
+%\usepackage{algorithmic}
+%\usepackage{algpseudocode}
+
+% Margins
+\usepackage[top=2.5cm, left=3cm, right=3cm, bottom=4.0cm]{geometry}
+% Colour table cells
+\usepackage[table]{xcolor}
+
+% Get larger line spacing in table
+\newcommand{\tablespace}{\\[1.25mm]}
+\newcommand\Tstrut{\rule{0pt}{2.6ex}}         % = `top' strut
+\newcommand\tstrut{\rule{0pt}{2.0ex}}         % = `top' strut
+\newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}}   % = `bottom' strut
+
+%%%%%%%%%%%%%%%%%
+%   Homework 1  %
+%%%%%%%%%%%%%%%%%
+\title{EE 382C Multicore Computing Homework 3}
+\author{
+    Mitchell, Olivia\\
+    \texttt{ozm59}
+    \and
+    Molter, Matthew\\
+    \texttt{mm58286}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+%%%%%%%%%%%%%%%%%
+%   Problem 1   %
+%%%%%%%%%%%%%%%%%
+\section{Problem 1}
+For each of the histories below, state whether it is
+(a) sequentially consistent, (b) linearizable. Justify your answer.
+All variables are initially zero.
+
+\subsection{H1}
+\begin{verbatim}
+Concurrent History H1
+
+P1           [ read(x) returns   1]
+P2       [ write(x,1)                   ]    [ read(x)  returns 2]
+P3             [write(x,2)      ]            
+\end{verbatim}
+
+\subsubsection{Equivalent order}
+This can be written as
+
+H1 = $P_2.write(x, 1), P_1.read(x), P_3.write(x, 2), P_3.ok(), P_1.ok(1), P_2.ok(), P_2.read(x), P_2.ok(2)$
+
+which is equivalent to 
+
+H1 = $P_2.write(x, 1), P_2.ok(), P_1.read(x), P1.ok(1), P_3.write(x, 2), P_3.ok(), P_2.read(x), P_2.ok(2)$
+
+\subsubsection{Solution part a - sequentially consistent?}
+Yes, this is sequentially consistent, as the above equivalency is legal (consistent with sequential history of each object), and satisfies process order (no invocations on same process before response of previous operation).
+\subsubsection{Solution part b - linearizable?}
+Yes, this is linearizable, as the previously shown equivalent history also satisfies the preserving $<_H$ requirement.
+
+\subsection{H2}
+\begin{verbatim}
+Concurrent History H2
+
+P1           [ read(x) returns   1]
+P2       [ write(x,1)                   ]    [ read(x)  returns 1]
+P3             [write(x,2)      ]            
+\end{verbatim}
+
+\subsubsection{Equivalent order}
+This can be written as
+
+H1 = $P_2.write(x, 1), P_1.read(x), P_3.write(x, 2), P_3.ok(), P_1.ok(1), P_2.ok(), P_2.read(x), P_2.ok(1)$
+
+which is equivalent to 
+
+H1 = $P_2.write(x, 1), P_2.ok(), P_1.read(x), P_1.ok(1), P_2.read(x), P_2.ok(1), P_3.write(x, 2), P_3.ok()$
+
+\subsubsection{Solution part a - sequentially consistent?}
+Yes, this is sequentially consistent. Again, the above equivalency is legal and satisfies process order.
+\subsubsection{Solution part b - linearizable?}
+This is not linearizable. In order to have a sequential history that is legal, we must violate the $<_H$ requirement by reading on $P_2$ before $P_3$ has finished writing. However, per the original history, $P_3$ receives the $ok()$ for its write before $P_2$ invokes its own read, so the above equivalency violates $<_H$.
+
+\subsection{H3}
+\begin{verbatim}
+Concurrent History H3
+
+P1           [ read(x) returns 1]
+P2       [ write(x,1) ]                       [ read(x)  returns 1]
+P3                        [write(x,2)      ]            
+\end{verbatim}
+
+\subsubsection{Equivalent order}
+This can be written as
+
+H1 = $P_2.write(x, 1), P_1.read(x), P_2.ok(), P_3.write(x, 2), P_1.ok(1), P_3.ok(), P_2.read(x), P_2.ok(1)$
+
+which is equivalent to 
+
+H1 = $P_2.write(x, 1), P_2.ok(), P_1.read(x), P_1.ok(1), P_2.read(x), P_2.ok(1), P_3.write(x, 2), P_3.ok()$
+
+\subsubsection{Solution part a - sequentially consistent?}
+Yes, this is sequentially consistent. Again, the above equivalency is legal and satisfies process order.
+\subsubsection{Solution part b - linearizable?}
+This is not linearizable. In order to have a sequential history that is legal, we must violate the $<_H$ requirement by reading on $P_2$ before $P_3$ has finished writing. However, per the original history, $P_3$ receives the $ok()$ for its write before $P_2$ invokes its own read, so the above equivalency violates $<_H$.
+
+%%%%%%%%%%%%%%%%%
+%   Problem 2   %
+%%%%%%%%%%%%%%%%%
+\pagebreak
+\section{Problem 2}
+Consider the following concurrent program.
+\begin{verbatim}
+Initially a, b and c are 0.
+P1:  a:=1 ; print(b) ; print(c);
+P2:  b:=1 ; print(a) ; print(c);
+P3:  c:=1 ; print(a) ; print(b);
+\end{verbatim}
+
+Which of the outputs are sequentially consistent. Justify your answer.
+
+(a) P1 outputs 11, P2 outputs 01 and P3 outputs 11.\\
+(b) P1 outputs 00, P2 outputs 11 and P3 outputs 01.
+
+
+\subsection{Solution 2a}
+This is sequential consistent since this order is legal and satisfies the process order: \\
+$P_2.write(b, 1), P_2.ok(), P_2.print(a), P_2.ok(0), P_1.write(a,1), P_1.ok(), P_3.write(c,1), P_3.ok(),etc$ (any order of the remaining prints past here would return 1)
+ 
+
+\subsection{Solution 2b}
+This is not sequentially constant since there is no order that and keeps process order.
+
+For $P_1$ to print cleanly, these orderings of events must occur: \\
+$P_1.write(a,1) -> P_1.ok() -> P_1.print(b)$ \\
+$P_1.print(b) -> P_2.write(b, 1)$ \\
+$P_1.print(b) -> P_1.ok() -> P_1.print(c)$ \\
+$P_1.print(c) -> P_3.write(c, 1)$
+
+For $P_2$ to print cleanly, these orderings of events must occur: \\
+$ P_2.write(b,1) -> P_2.ok() -> P_2.print(a)$ \\
+$ P_1.write(a,1) -> P_2.print(a)$ \\
+$ P_2.print(a) -> P_2.ok(1) -> P_2.print(c)$ \\
+$ P_3.write(c,1) -> P_2.print(c)$ 
+
+For $P_3$ to print cleanly, these orderings of events must occur: \\
+$P_3.write(c,1) -> P_3.ok() -> P_3.print(a)$ \\ 
+$P_3.print(a), P_3 -> P_1.write(a,1)$ \\ 
+$P_3.print(a) -> P_3.ok(0) -> P_3.print(b)$ \\ 
+$P_2.write(b,1) -> P_3.print(b)$
+
+However, there is no combination of all of these events that maintains these ordering ($P_3$ and $P_1$ come into conflict) thus this is not sequentially consistent.
+
+
+%%%%%%%%%%%%%%%%%
+%   Problem 3   %
+%%%%%%%%%%%%%%%%%
+\pagebreak
+\section{Problem 3}
+\subsection{part a - queues}
+Implement Lock-based and Lock-Free unbounded queues of {\tt Integers}.
+For the lock based implementation, use different locks for {\tt enq} and {\tt deq} operations.
+For the variable {\tt count} use {\tt AtomicInteger}. 
+For the lock-free implementation, 
+use Michael and Scott's algorithm as
+explained in the class. The {\em deq} operation should return {\em null}
+if the queue is empty.\\
+
+\subsection{part b - stacks}
+Implement Lock-Free stack of {\tt Integer}. You should provide {\tt push(Integer x)}
+and {\tt Integer pop()}. The {\tt pop} operation should throw an exception called
+{\tt EmptyStack} if the stack is empty.
+\\
+For both the data structures use a list based implementation (rather than an array based implementation).
+
+\end{document}
